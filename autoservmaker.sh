@@ -1,11 +1,23 @@
-copy_source="cp_source_paths.as"
-copy_dest="cp_dest_paths.as"
-mv_source="mv_source_paths.as"
-mv_dest="mv_dest_paths.as"
-del_path="delete_paths.as"
-script_path="script_paths"
+#!/bin/bash
 
-option_one() {
+clear
+mkdir -p "./autoserv"
+mkdir -p "./out"
+
+copy_source="./autoserv/cp_source_paths.as"
+copy_dest="./autoserv/cp_dest_paths.as"
+mv_source="./autoserv/mv_source_paths.as"
+mv_dest="./autoserv/mv_dest_paths.as"
+del_path="./autoserv/delete_paths.as"
+script_path="./autoserv/script_paths"
+autoserv_path="./out/autoserv.sh"
+copy_tar="./out/copied_files.tar.gz"
+basenames="./autoserv/basenames.as"
+autoserv_dir="./autoserv"
+output_dir="./out"
+
+
+copy_option() {
     clear
     read -e -p "Source > " source_path
     
@@ -24,7 +36,7 @@ option_one() {
     fi
 }
 
-option_two() {
+move_option() {
     clear
     read -e -p "Source > " source_path
     
@@ -44,7 +56,7 @@ option_two() {
     fi
 }
 
-option_three() {
+delete_option() {
     clear
     read -e -p "File path to delete > " file_to_delete
     if [[ -n "$file_to_delete" ]]; then
@@ -55,18 +67,18 @@ option_three() {
     fi
 }
 
-option_four() {
+script_option() {
     clear
     read -e -p "Scripts to execute > " script_to_run
     if [[ -n "$script_to_run" ]]; then
 	echo "$script_to_run" >> $script_path
-	echo "File saved to delete scripts"
+	echo "Script saved."
     else
 	echo "No scripts entered"
     fi
 }
 
-option_five() {
+status_option() {
     clear
     if [ -f "./$copy_source" ]; then
 	less "./$copy_source"
@@ -96,30 +108,96 @@ option_five() {
     fi
 }
 
-# Show the menu
+create_autoserv(){
+    clear
+    # Phase 1: hna on va faire des choses pour faciliter les travaux d'autoserv
+    echo "#COPY SECTION" >> $autoserv_path
+    if [ -f "./$copy_source" ]; then
+        tar -czf "$copy_tar" -T $copy_source
+        xargs -n1 basename < $copy_source > $basenames
+        echo "Created $copy_tar"
+
+        echo 'tar -xzf "./out/copied_files.tar.gz"' >> $autoserv_path
+        paste "$basenames" "$copy_dest" | while read -r src dst; do
+            echo "cp \"$src\" \"$dst\""
+        done >> $autoserv_path
+    else
+	    echo "No copy paths, skipping..."
+    fi
+
+    echo >> $autoserv_path
+    echo "#MOVE SECTION" >> $autoserv_path
+    if [ -f "./$mv_source" ]; then
+        paste "$mv_source" "$mv_dest" | while read -r src dst; do
+            echo "mv \"$src\" \"$dst\""
+        done >> $autoserv_path
+    fi
+    
+    echo >> $autoserv_path
+    echo "#DELETE SECTION" >> $autoserv_path
+    if [ -f "./$del_path" ]; then
+        paste "$del_path" | while read -r src; do
+        echo "rm -rf \"$src\""
+        done >> $autoserv_path
+    fi
+
+    echo >> $autoserv_path
+    echo "#SCRIPT SECTION" >> $autoserv_path
+    if [ -f "./$script_path" ]; then
+        paste "$script_path" | while read -r src; do
+        echo "\"$src\""
+        done >> $autoserv_path
+    fi
+
+
+    # Phase 2:
+    # echo 'tar -xzf "$copy_tar"' > $autoserv_path
+    # paste "$basenames" "$copy_dest" | while read -r src dst; do
+    #     echo "cp \"$src\" \"$dst\""
+    # done > $autoserv_path
+
+
+    
+
+    chmod +x $autoserv_path
+}
+
+clear_option(){
+    clear
+    rm -rf ./autoserv
+    rm -rf ./out
+    mkdir -p "./autoserv"
+    mkdir -p "./out"
+    echo "Files removed, you can start over now"
+}
+
 show_menu() {
-    echo "Select an option:"
-    echo "1) Add files to copy"
-    echo "2) Add files to move"
-    echo "3) Add files to remove"
-    echo "4) Run Scripts"
-    echo "5) Status"
-    echo "6) Create autoserv.sh"
-    echo "7) Exit"
+    echo "=============================="
+    echo "= Select an option:          ="
+    echo "= 1) Add files to copy       ="
+    echo "= 2) Add files to move       ="
+    echo "= 3) Add files to remove     ="
+    echo "= 4) Run Scripts             ="
+    echo "= 5) Status                  ="
+    echo "= 6) Create autoserv.sh      ="
+    echo "= 9) Start over              ="
+    echo "= 0) Exit                    ="
+    echo "=============================="
 }
 
 # Main loop
 while true; do
     show_menu
-    read -p "Enter your choice [1-5]: " choice
+    read -p "Enter your choice: " choice
     case $choice in
-        1) option_one ;;
-        2) option_two ;;
-        3) option_three ;;
-        4) option_four ;;
-	5) option_five ;;
-	6) option_six ;;
-        7) echo "Exiting..."; break ;;
+        1) copy_option ;;
+        2) move_option ;;
+        3) delete_option ;;
+        4) script_option ;;
+        5) status_option ;;
+        6) create_autoserv ;;
+        9) clear_option ;;
+        0) echo "Exiting..."; break ;;
         *) echo "Invalid option, try again." ;;
     esac
     echo ""
