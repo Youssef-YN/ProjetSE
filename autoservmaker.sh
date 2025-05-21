@@ -3,18 +3,12 @@ option_one() {
     read -e -p "Source > " source_path
     
     if [[ -n "$source_path" ]]; then
-        echo "Enter a DESTINATION file path (use tab for autocompletion):"
         read -e -p "Destination > " dest_path
         
         if [[ -n "$dest_path" ]]; then
-            echo "Source: $source_path"
-            echo "Destination: $dest_path"
-            
-            # Save to separate files
-            echo "$source_path" >> copy_source_paths.txt
-            echo "$dest_path" >> copy_destination_paths.txt
-            
-            echo "Paths saved to copy_source_paths.txt and copy_destination_paths.txt"
+            echo "$source_path" >> cp_source_paths
+            echo "$dest_path" >> cp_destination_paths            
+            echo "Paths saved to cp_source_paths and cp_destination_paths"
         else
             echo "No destination path entered."
         fi
@@ -31,14 +25,10 @@ option_two() {
         read -e -p "Destination > " dest_path
         
         if [[ -n "$dest_path" ]]; then
-            echo "Source: $source_path"
-            echo "Destination: $dest_path"
+            echo "$source_path" >> mv_source_paths.txt
+            echo "$dest_path" >> mv_destination_paths.txt
             
-            # Save to separate files
-            echo "$source_path" >> move_source_paths.txt
-            echo "$dest_path" >> move_destination_paths.txt
-            
-            echo "Paths saved to move_source_paths.txt and move_destination_paths.txt"
+            echo "Paths saved to mv_source_paths and mv_destination_paths"
         else
             echo "No destination path entered."
         fi
@@ -48,12 +38,26 @@ option_two() {
 }
 
 option_three() {
-    echo "You selected Option three"
+    clear
+    read -e -p "File path to delete > " file_to_delete
+    if [[ -n "$file_to_delete" ]]; then
+	echo "$file_to_delete" >> delete_paths
+	echo "File saved to delete delete_paths"
+    else
+	echo "No paths entered"
+    fi
 }
 
 option_four() {
-    echo "You selected Option four"
-}
+    clear
+    read -e -p "Scripts to execute > " script_to_run
+    if [[ -n "$script_to_run" ]]; then
+	echo "$script_to_run" >> script_paths
+	echo "File saved to delete scripts"
+    else
+	echo "No scripts entered"
+    fi
+    }
 
 # Show the menu
 show_menu() {
