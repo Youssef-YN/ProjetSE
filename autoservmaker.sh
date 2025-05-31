@@ -1,5 +1,40 @@
 #!/bin/bash
 
+# Options
+if [[ $1 == "-h" ]]; then
+    cat <<EOF
+Usage ./autoservmaker.sh [options]
+
+Options:
+ -h Show this help message.
+ -f Runs this script as a fork.
+ -t Runs this script as a thread.
+ -s Runs this script as a subshell.
+ -l Logs the output of this script.
+ -r Restores settings back to default.
+
+How the program works:
+You select files to copy and ensure that the destination path is a relative path.
+It then zips the files and copies them to your destination.
+
+You may also move, rename or delete files, though this would not include zipping
+for obvious reasons.
+
+After you're done with file management you can choose scripts to run such as:
+> npm install
+> mvn install
+> ./your-own-script
+
+That concludes all the possible actions, afterwards you may also check the status
+of this script to verify if everything is okay, otherwise you can restart.
+
+After everything is said and done you can select create autoserv option to create
+an autoserv.sh script according to your needs.
+EOF
+exit 0
+fi
+
+
 clear
 mkdir -p "./autoserv"
 mkdir -p "./out"
